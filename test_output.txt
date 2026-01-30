@@ -1,19 +1,9 @@
 Creating test database for alias 'default'...
-.F.
-======================================================================
-FAIL: test_logout (users.tests.AuthTests.test_logout)
-Ensure we can logout (blacklist refresh token).
+.....
 ----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "C:\Users\Tomas\Desktop\Software\gestor-gastos\users\tests.py", line 68, in test_logout
-    self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
-    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-AssertionError: 403 != 205
+Ran 5 tests in 4.046s
 
-----------------------------------------------------------------------
-Ran 3 tests in 2.505s
-
-FAILED (failures=1)
+OK
 Destroying test database for alias 'default'...
-Found 3 test(s).
+Found 5 test(s).
 System check identified no issues (0 silenced).

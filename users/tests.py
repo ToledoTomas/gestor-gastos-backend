@@ -7,9 +7,11 @@ User = get_user_model()
 
 class AuthTests(APITestCase):
     def setUp(self):
-        self.register_url = reverse('auth_register')
-        self.login_url = reverse('auth_login')
-        self.logout_url = reverse('auth_logout')
+        self.register_url = reverse('users-register')
+        self.login_url = reverse('users-login')
+        self.logout_url = reverse('users-logout')
+        self.me_url = reverse('users-me')
+        self.update_me_url = reverse('users-update-me')
         self.user_data = {
             'username': 'testuser',
             'email': 'test@example.com',
@@ -67,5 +69,44 @@ class AuthTests(APITestCase):
         response = self.client.post(self.logout_url, {'refresh': refresh_token}, format='json')
         self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
 
-        # Verify refresh token is blacklisted (optional, depends on if blacklist app is confirmed working)
-        # But 205 is enough to verify the view logic executed.
+    def test_me(self):
+        """
+        Ensure we can get the current user profile.
+        """
+        self.client.post(self.register_url, self.user_data, format='json')
+        login_data = {
+            'username': self.user_data['username'],
+            'password': self.user_data['password']
+        }
+        login_response = self.client.post(self.login_url, login_data, format='json')
+        access_token = login_response.data['access']
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        response = self.client.get(self.me_url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], self.user_data['username'])
+
+    def test_update_me(self):
+        """
+        Ensure we can update the current user profile.
+        """
+        self.client.post(self.register_url, self.user_data, format='json')
+        login_data = {
+            'username': self.user_data['username'],
+            'password': self.user_data['password']
+        }
+        login_response = self.client.post(self.login_url, login_data, format='json')
+        access_token = login_response.data['access']
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
+        
+        update_data = {
+            'phone': '0987654321',
+            'money_preference': 'EUR'
+        }
+        response = self.client.put(self.update_me_url, update_data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['phone'], update_data['phone'])
+        self.assertEqual(response.data['money_preference'], update_data['money_preference'])
